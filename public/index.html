@@ -627,11 +627,11 @@ async function generate(){
   document.getElementById('rBody').innerHTML='<div class="loading"><div class="spin"></div><p>JAR 계획을 생성하고 있습니다…</p></div>';
 
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    const resp=await fetch('/api/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-5',
         max_tokens:2200,
         stream:true,
         messages:[{role:'user',content:buildPrompt()}]
