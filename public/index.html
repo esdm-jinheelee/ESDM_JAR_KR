@@ -27,6 +27,48 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);}
 
+/* ── 잠금 화면 ── */
+#lockScreen{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;
+}
+.lock-box{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:18px;padding:40px 36px;
+  box-shadow:0 8px 32px rgba(44,35,24,.12);
+  text-align:center;width:320px;max-width:90vw;
+}
+.lock-logo{
+  width:52px;height:52px;background:var(--accent);border-radius:13px;
+  display:grid;place-items:center;margin:0 auto 16px;
+  font-family:'Gowun Dodum',sans-serif;font-size:26px;font-weight:700;color:#fff;
+}
+.lock-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+.lock-sub{font-size:0.78rem;color:var(--text2);margin-bottom:24px;line-height:1.5;}
+.lock-input{
+  width:100%;padding:11px 14px;
+  border:1.5px solid var(--border);border-radius:10px;
+  font-size:0.9rem;font-family:'Noto Sans KR',sans-serif;
+  background:var(--surface2);color:var(--text);
+  outline:none;text-align:center;letter-spacing:.15em;
+  transition:border-color .15s;margin-bottom:12px;
+}
+.lock-input:focus{border-color:var(--accent);}
+.lock-btn{
+  width:100%;padding:12px;border:none;border-radius:10px;
+  background:var(--accent);color:#fff;
+  font-size:0.9rem;font-weight:700;
+  font-family:'Noto Sans KR',sans-serif;cursor:pointer;
+  transition:all .15s;box-shadow:0 4px 14px rgba(212,112,58,.25);
+}
+.lock-btn:hover{background:#b85a25;}
+.lock-err{
+  font-size:0.78rem;color:#c03030;margin-top:10px;
+  min-height:18px;
+}
+.lock-footer{font-size:0.65rem;color:#b0a898;margin-top:20px;letter-spacing:.08em;}
+
 /* header */
 header{background:#1e1610;color:#fff;padding:16px 26px;display:flex;align-items:center;gap:13px;}
 .logo{width:38px;height:38px;background:var(--accent);border-radius:9px;display:grid;place-items:center;
@@ -179,6 +221,23 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
 </head>
 <body>
 
+<!-- ── 잠금 화면 ── -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-logo">E</div>
+    <div class="lock-title">ESDM JAR 생성기</div>
+    <div class="lock-sub">사용하려면 접근 코드를 입력해 주세요.</div>
+    <input class="lock-input" id="lockInput" type="password"
+      placeholder="코드 입력"
+      onkeydown="if(event.key==='Enter')checkCode()"
+      autocomplete="off"
+    />
+    <button class="lock-btn" onclick="checkCode()">입장하기 →</button>
+    <div class="lock-err" id="lockErr"></div>
+    <div class="lock-footer">© 2026 JIN HEE LEE · BCBA / ESDM Certified Therapist</div>
+  </div>
+</div>
+
 <header>
   <div class="logo">E</div>
   <div>
@@ -244,6 +303,7 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
     </div>
 
     <button class="gen-btn" id="genBtn" onclick="generate()">JAR 계획 생성하기 →</button>
+    <div id="usageCounter" style="text-align:center;font-size:.72rem;margin-top:8px;color:#6a5e4e;"></div>
   </div>
 
   <!-- RIGHT -->
@@ -274,24 +334,29 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
 
 <script>
 /* ── 잠금 화면 ── */
+// 코드는 여기서 변경하세요 (여러 개 가능)
 const ACCESS_CODES = ['ESDM2026'];
+
 function checkCode(){
-  const val=document.getElementById('lockInput').value.trim().toUpperCase();
-  const err=document.getElementById('lockErr');
+  const val = document.getElementById('lockInput').value.trim().toUpperCase();
+  const err = document.getElementById('lockErr');
   if(ACCESS_CODES.map(c=>c.toUpperCase()).includes(val)){
     sessionStorage.setItem('jar_auth','1');
     document.getElementById('lockScreen').style.display='none';
+    err.textContent='';
   } else {
-    err.textContent='코드가 올바르지 않습니다.';
+    err.textContent='코드가 올바르지 않습니다. 다시 시도해 주세요.';
     document.getElementById('lockInput').value='';
+    document.getElementById('lockInput').focus();
   }
 }
+
+// 이미 인증된 경우 잠금 화면 건너뜀
 if(sessionStorage.getItem('jar_auth')==='1'){
   document.getElementById('lockScreen').style.display='none';
 }
-  
-  
-  /* ── state ── */
+
+/* ── state ── */
 let selLvs=[], selToys=[], selDomains=[], rawText='';
 
 /* ── level ── */
@@ -333,6 +398,8 @@ function addToy(){
   document.getElementById('toyInput').value='';
 }
 document.getElementById('toyInput').addEventListener('keydown',e=>{if(e.key==='Enter')addToy();});
+// 페이지 로드 시 카운터 표시
+updateCounter();
 
 /* ── domains ── */
 function toggleDomain(el){
@@ -510,10 +577,46 @@ function copyForDoc(){
   });
 }
 
+/* ── 사용량 제한 (하루 10회) ── */
+const DAILY_LIMIT = 10;
+
+function getUsage(){
+  const today = new Date().toISOString().slice(0,10);
+  const saved = JSON.parse(localStorage.getItem('jar_usage')||'{}');
+  if(saved.date !== today) return {date:today, count:0};
+  return saved;
+}
+function incrementUsage(){
+  const u = getUsage();
+  u.count++;
+  localStorage.setItem('jar_usage', JSON.stringify(u));
+  updateCounter();
+}
+function updateCounter(){
+  const u = getUsage();
+  const remaining = DAILY_LIMIT - u.count;
+  const el = document.getElementById('usageCounter');
+  if(!el) return;
+  el.textContent = `오늘 남은 횟수: ${remaining}/${DAILY_LIMIT}`;
+  el.style.color = remaining <= 2 ? '#d4703a' : '#6a5e4e';
+}
+
 /* ── generate ── */
 async function generate(){
   if(!selLvs.length){alert('ESDM 레벨을 선택해 주세요.');return;}
   if(!selToys.length){alert('놀잇감을 선택해 주세요.');return;}
+
+  // 사용량 체크
+  const usage = getUsage();
+  if(usage.count >= DAILY_LIMIT){
+    document.getElementById('rBody').innerHTML=`
+      <div class="err" style="text-align:center;padding:36px 24px;">
+        <div style="font-size:2rem;margin-bottom:12px;">🚫</div>
+        <div style="font-size:1rem;font-weight:700;color:#8a2020;margin-bottom:8px;">오늘 사용 한도에 도달했습니다</div>
+        <div style="font-size:0.84rem;color:#b03030;">하루 최대 ${DAILY_LIMIT}회까지 생성할 수 있습니다.<br>내일 자정 이후 다시 이용해 주세요.</div>
+      </div>`;
+    return;
+  }
 
   const btn=document.getElementById('genBtn');
   btn.disabled=true; btn.textContent='생성 중…';
@@ -555,6 +658,7 @@ async function generate(){
       }
     }
     renderFull(full,toyLabel);
+    incrementUsage();
   }catch(e){
     document.getElementById('rBody').innerHTML=`<div class="err">오류가 발생했습니다.<br><br>${e.message}</div>`;
   }finally{
