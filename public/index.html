@@ -273,7 +273,25 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
 <footer>© 2026 JIN HEE LEE · BCBA / ESDM Certified Therapist</footer>
 
 <script>
-/* ── state ── */
+/* ── 잠금 화면 ── */
+const ACCESS_CODES = ['ESDM2026'];
+function checkCode(){
+  const val=document.getElementById('lockInput').value.trim().toUpperCase();
+  const err=document.getElementById('lockErr');
+  if(ACCESS_CODES.map(c=>c.toUpperCase()).includes(val)){
+    sessionStorage.setItem('jar_auth','1');
+    document.getElementById('lockScreen').style.display='none';
+  } else {
+    err.textContent='코드가 올바르지 않습니다.';
+    document.getElementById('lockInput').value='';
+  }
+}
+if(sessionStorage.getItem('jar_auth')==='1'){
+  document.getElementById('lockScreen').style.display='none';
+}
+  
+  
+  /* ── state ── */
 let selLvs=[], selToys=[], selDomains=[], rawText='';
 
 /* ── level ── */
@@ -506,11 +524,11 @@ async function generate(){
   document.getElementById('rBody').innerHTML='<div class="loading"><div class="spin"></div><p>JAR 계획을 생성하고 있습니다…</p></div>';
 
   try{
-    const resp=await fetch('/api/generate',{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',
+        model:'claude-sonnet-4-20250514',
         max_tokens:2200,
         stream:true,
         messages:[{role:'user',content:buildPrompt()}]
