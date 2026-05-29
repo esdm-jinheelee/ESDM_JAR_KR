@@ -506,7 +506,7 @@ async function generate(){
   document.getElementById('rBody').innerHTML='<div class="loading"><div class="spin"></div><p>JAR 계획을 생성하고 있습니다…</p></div>';
 
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    const resp=await fetch('/api/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
