@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESDM JAR 계획 생성기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4efe6;
+  --surface: #fffdf8;
+  --surface2: #ede8de;
+  --accent:  #d4703a;
+  --accent2: #4a7fa0;
+  --accent3: #5e9e72;
+  --text:  #2a2018;
+  --text2: #6a5e4e;
+  --border: #cfc4b0;
+  --r: 14px;
+  --c-setup-bg:#fff4ec; --c-setup-bd:#d4703a;
+  --c-theme-bg:#edf5fb; --c-theme-bd:#4a7fa0;
+  --c-var-bg:  #eef7f1; --c-var-bd:  #5e9e72;
+  --c-close-bg:#f5f1ec; --c-close-bd:#9a8060;
+  --c-song-bg: #f5eefb; --c-song-bd: #9060c0;
+  --c-tip-bg:  #fffbee; --c-tip-bd:  #c09830;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);}
+
+/* header */
+header{background:#1e1610;color:#fff;padding:16px 26px;display:flex;align-items:center;gap:13px;}
+.logo{width:38px;height:38px;background:var(--accent);border-radius:9px;display:grid;place-items:center;
+  font-family:'Gowun Dodum',sans-serif;font-size:19px;font-weight:700;color:#fff;flex-shrink:0;}
+header h1{font-size:1rem;font-weight:700;}
+header p{font-size:0.73rem;color:#9a8e80;margin-top:1px;}
+
+/* layout */
+.wrap{max-width:980px;margin:0 auto;padding:22px 16px 60px;
+  display:grid;grid-template-columns:288px 1fr;gap:18px;align-items:start;}
+@media(max-width:680px){.wrap{grid-template-columns:1fr;}}
+
+/* card */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:20px;box-shadow:0 2px 10px rgba(44,35,24,.08);}
+.card-title{font-size:.67rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text2);padding-bottom:11px;margin-bottom:16px;border-bottom:1px solid var(--border);}
+
+/* field */
+.field{margin-bottom:18px;}
+.field>label{display:block;font-size:.79rem;font-weight:600;color:var(--text2);margin-bottom:8px;}
+.req::after{content:' *';color:var(--accent);}
+
+/* level grid */
+.lvl-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.lvl-btn{padding:9px 7px;text-align:center;border:1.5px solid var(--border);border-radius:9px;
+  background:var(--surface2);cursor:pointer;font-size:.77rem;font-family:'Noto Sans KR',sans-serif;
+  color:var(--text2);line-height:1.4;transition:all .15s;}
+.lvl-btn:hover{border-color:var(--accent);color:var(--accent);}
+.lvl-btn.on{border-color:var(--accent);background:#fdeee4;color:var(--accent);font-weight:700;}
+.lvl-note{font-size:.69rem;color:var(--text2);margin-top:7px;padding:7px 9px;
+  background:var(--surface2);border-radius:7px;line-height:1.55;}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:5px;}
+.chip{padding:5px 10px;border:1.5px solid var(--border);border-radius:18px;background:var(--surface2);
+  font-size:.75rem;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;
+  transition:all .15s;user-select:none;}
+.chip:hover{border-color:var(--accent2);color:var(--accent2);}
+.chip.on{border-color:var(--accent2);background:#e4f0f8;color:var(--accent2);font-weight:700;}
+.add-row{display:flex;gap:6px;margin-top:7px;}
+.add-row input{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;
+  font-size:.77rem;font-family:'Noto Sans KR',sans-serif;background:var(--surface2);
+  color:var(--text);outline:none;transition:border-color .15s;}
+.add-row input:focus{border-color:var(--accent2);}
+.add-row button{padding:7px 12px;border:none;border-radius:8px;background:var(--accent2);
+  color:#fff;font-size:.77rem;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.add-row button:hover{opacity:.85;}
+
+/* domain */
+.domain-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.d-item{display:flex;align-items:center;gap:6px;padding:7px 9px;border:1.5px solid var(--border);
+  border-radius:8px;background:var(--surface2);cursor:pointer;font-size:.75rem;color:var(--text2);
+  transition:all .15s;user-select:none;-webkit-user-select:none;}
+.d-item:hover{border-color:var(--accent3);}
+.d-item.on{border-color:var(--accent3);background:#e8f5ec;color:#2e6040;font-weight:600;}
+.d-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .15s;}
+.d-item.on .d-dot{background:var(--accent3);}
+
+/* gen button */
+.gen-btn{width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);color:#fff;
+  font-size:.9rem;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;margin-top:5px;
+  transition:all .15s;box-shadow:0 4px 14px rgba(212,112,58,.25);}
+.gen-btn:hover:not(:disabled){background:#b85a25;}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* result wrap */
+.result-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);
+  box-shadow:0 2px 10px rgba(44,35,24,.08);overflow:hidden;min-height:300px;}
+.result-top{padding:13px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;}
+.r-badge{background:#1e1610;color:#fff;font-size:.64rem;font-weight:700;
+  padding:3px 8px;border-radius:18px;letter-spacing:.08em;}
+.r-title{font-size:.81rem;font-weight:600;color:var(--text2);margin-left:8px;}
+.copy-btn{padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;
+  background:transparent;font-size:.71rem;cursor:pointer;font-family:'Noto Sans KR',sans-serif;
+  color:var(--text2);transition:all .15s;}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.result-body{padding:18px;}
+
+/* placeholder */
+.ph{text-align:center;padding:56px 22px;color:var(--text2);}
+.ph-icon{font-size:42px;margin-bottom:11px;opacity:.32;}
+.ph-txt{font-size:.84rem;line-height:1.7;}
+
+/* loading */
+.loading{text-align:center;padding:56px 22px;}
+.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 13px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading p{font-size:.84rem;color:var(--text2);}
+
+/* phase cards */
+.phase-card{border-radius:11px;border:1.5px solid;overflow:hidden;margin-bottom:12px;}
+.phase-head{padding:9px 15px;display:flex;align-items:center;justify-content:space-between;
+  font-size:.73rem;font-weight:700;letter-spacing:.05em;}
+.step-badge{background:rgba(255,255,255,.3);padding:2px 7px;border-radius:18px;font-size:.63rem;font-weight:700;}
+.phase-body{padding:13px 15px;font-size:.83rem;line-height:1.8;}
+.phase-body ul{padding-left:15px;margin:5px 0;}
+.phase-body li{margin-bottom:4px;}
+.phase-body p{margin-bottom:5px;}
+
+.p-setup{border-color:var(--c-setup-bd);}
+.p-setup .phase-head{background:var(--c-setup-bd);color:#fff;}
+.p-setup .phase-body{background:var(--c-setup-bg);}
+.p-theme{border-color:var(--c-theme-bd);}
+.p-theme .phase-head{background:var(--c-theme-bd);color:#fff;}
+.p-theme .phase-body{background:var(--c-theme-bg);}
+.p-var{border-color:var(--c-var-bd);}
+.p-var .phase-head{background:var(--c-var-bd);color:#fff;}
+.p-var .phase-body{background:var(--c-var-bg);}
+.p-close{border-color:var(--c-close-bd);}
+.p-close .phase-head{background:var(--c-close-bd);color:#fff;}
+.p-close .phase-body{background:var(--c-close-bg);}
+.p-song{border-color:var(--c-song-bd);}
+.p-song .phase-head{background:var(--c-song-bd);color:#fff;}
+.p-song .phase-body{background:var(--c-song-bg);}
+.p-tip{border-color:var(--c-tip-bd);}
+.p-tip .phase-head{background:var(--c-tip-bd);color:#fff;}
+.p-tip .phase-body{background:var(--c-tip-bg);}
+
+/* tags */
+.tags-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
+.ttag{padding:3px 10px;border-radius:18px;font-size:.71rem;font-weight:600;}
+.ttag-lang{background:#ddeef8;color:#2a5e80;}
+.ttag-social{background:#fde8d8;color:#904020;}
+.ttag-imitation{background:#dff0e4;color:#2a6040;}
+.ttag-cog{background:#ece0f8;color:#5030a0;}
+.ttag-joint{background:#fde8d8;color:#904020;}
+.ttag-motor{background:#f8f0d8;color:#806020;}
+
+/* error */
+.err{padding:16px;background:#fff0f0;border:1px solid #f0c0c0;border-radius:9px;
+  color:#b03030;font-size:.83rem;line-height:1.6;}
+
+/* stream */
+#stream-raw{font-size:.83rem;line-height:1.85;white-space:pre-wrap;}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:#1e1610;color:#fff;padding:12px 20px;border-radius:11px;
+  font-size:.81rem;font-family:'Noto Sans KR',sans-serif;line-height:1.6;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;text-align:center;
+  max-width:320px;width:90%;display:none;}
+.toast small{font-size:.72rem;color:#c0b0a0;}
+
+footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
+  letter-spacing:.1em;color:#9a8e80;font-family:'Noto Sans KR',sans-serif;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">E</div>
+  <div>
+    <h1>ESDM JAR 계획 생성기</h1>
+    <p>Joint Activity Routine · 공동활동루틴 플래너</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- LEFT -->
+  <div class="card">
+    <div class="card-title">루틴 설정</div>
+
+    <div class="field">
+      <label class="req">ESDM 레벨 (최대 2개)</label>
+      <div class="lvl-grid">
+        <button class="lvl-btn" data-lv="1" onclick="toggleLv(this)">레벨 1<br><small style="font-size:.67rem;font-weight:400">12–18개월</small></button>
+        <button class="lvl-btn" data-lv="2" onclick="toggleLv(this)">레벨 2<br><small style="font-size:.67rem;font-weight:400">19–24개월</small></button>
+        <button class="lvl-btn" data-lv="3" onclick="toggleLv(this)">레벨 3<br><small style="font-size:.67rem;font-weight:400">25–36개월</small></button>
+        <button class="lvl-btn" data-lv="4" onclick="toggleLv(this)">레벨 4<br><small style="font-size:.67rem;font-weight:400">37–48개월</small></button>
+      </div>
+      <div class="lvl-note" id="lvNote" style="display:none"></div>
+    </div>
+
+    <div class="field">
+      <label class="req">선호 놀잇감 (1개 이상)</label>
+      <div class="chips" id="toyBox">
+        <span class="chip" onclick="toggleChip(this)">🚂 기차</span>
+        <span class="chip" onclick="toggleChip(this)">🚗 자동차</span>
+        <span class="chip" onclick="toggleChip(this)">🧱 블록</span>
+        <span class="chip" onclick="toggleChip(this)">⚽ 공</span>
+        <span class="chip" onclick="toggleChip(this)">🫧 비눗방울</span>
+        <span class="chip" onclick="toggleChip(this)">🎂 케이크</span>
+        <span class="chip" onclick="toggleChip(this)">🍳 소꿉놀이</span>
+        <span class="chip" onclick="toggleChip(this)">🩺 의사놀이</span>
+        <span class="chip" onclick="toggleChip(this)">🛗 엘리베이터</span>
+        <span class="chip" onclick="toggleChip(this)">🫧 풍선</span>
+        <span class="chip" onclick="toggleChip(this)">🎨 미술/클레이</span>
+        <span class="chip" onclick="toggleChip(this)">📚 그림책</span>
+        <span class="chip" onclick="toggleChip(this)">🎵 악기</span>
+        <span class="chip" onclick="toggleChip(this)">🧩 퍼즐</span>
+        <span class="chip" onclick="toggleChip(this)">🪁 그네/미끄럼틀</span>
+      </div>
+      <div class="add-row">
+        <input id="toyInput" type="text" placeholder="직접 입력 후 Enter…"/>
+        <button onclick="addToy()">추가</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>목표 발달 영역 (선택)</label>
+      <div class="domain-grid">
+        <div class="d-item" onclick="toggleDomain(this)"><span class="d-dot"></span>표현언어</div>
+        <div class="d-item" onclick="toggleDomain(this)"><span class="d-dot"></span>수용언어</div>
+        <div class="d-item" onclick="toggleDomain(this)"><span class="d-dot"></span>사회성</div>
+        <div class="d-item" onclick="toggleDomain(this)"><span class="d-dot"></span>모방</div>
+        <div class="d-item" onclick="toggleDomain(this)"><span class="d-dot"></span>공동주의</div>
+        <div class="d-item" onclick="toggleDomain(this)"><span class="d-dot"></span>소근육</div>
+        <div class="d-item" onclick="toggleDomain(this)"><span class="d-dot"></span>대근육</div>
+        <div class="d-item" onclick="toggleDomain(this)"><span class="d-dot"></span>인지</div>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="generate()">JAR 계획 생성하기 →</button>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="result-wrap">
+    <div class="result-top">
+      <div style="display:flex;align-items:center;">
+        <span class="r-badge">JAR OUTPUT</span>
+        <span class="r-title" id="rTitle">생성 결과</span>
+      </div>
+      <button class="copy-btn" id="copyBtn" onclick="copyForDoc()" style="display:none">📋 문서로 복사</button>
+    </div>
+    <div class="result-body" id="rBody">
+      <div class="ph">
+        <div class="ph-icon">🎯</div>
+        <div class="ph-txt">레벨과 놀잇감을 선택하고<br>JAR 계획을 생성해 보세요.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">
+  클립보드에 복사됐습니다 ✓<br>
+  <small>구글 독스 열기 → Ctrl+V 붙여넣기 → 파일 → PDF 다운로드</small>
+</div>
+
+<footer>© 2026 JIN HEE LEE · BCBA / ESDM Certified Therapist</footer>
+
+<script>
+/* ── state ── */
+let selLvs=[], selToys=[], selDomains=[], rawText='';
+
+/* ── level ── */
+const lvDesc={
+  1:'수용·표현언어, 사회기술, 모방, 인지, 놀이, 대소근육, 자조기술',
+  2:'수용·표현언어, 공동주의, 사회기술, 모방, 인지, 놀이, 대소근육',
+  3:'수용·표현언어, 사회기술, 인지, 놀이, 대소근육, 개인 독립',
+  4:'수용·표현언어, 사회기술, 인지, 놀이, 대소근육, 자조기술'
+};
+function toggleLv(btn){
+  const lv=+btn.dataset.lv;
+  if(btn.classList.contains('on')){
+    btn.classList.remove('on'); selLvs=selLvs.filter(l=>l!==lv);
+  } else {
+    if(selLvs.length>=2){alert('레벨은 최대 2개까지 선택할 수 있습니다.');return;}
+    btn.classList.add('on'); selLvs.push(lv);
+  }
+  const note=document.getElementById('lvNote');
+  if(!selLvs.length){note.style.display='none';return;}
+  note.style.display='block';
+  note.textContent=[...selLvs].sort().map(l=>`레벨${l}: ${lvDesc[l]}`).join(' | ');
+}
+
+/* ── toys ── */
+function toggleChip(el){
+  el.classList.toggle('on');
+  const n=el.textContent.trim();
+  if(el.classList.contains('on')){if(!selToys.includes(n))selToys.push(n);}
+  else selToys=selToys.filter(t=>t!==n);
+}
+function addToy(){
+  const v=document.getElementById('toyInput').value.trim();
+  if(!v)return;
+  const sp=document.createElement('span');
+  sp.className='chip on'; sp.textContent=v;
+  sp.onclick=()=>toggleChip(sp);
+  document.getElementById('toyBox').appendChild(sp);
+  selToys.push(v);
+  document.getElementById('toyInput').value='';
+}
+document.getElementById('toyInput').addEventListener('keydown',e=>{if(e.key==='Enter')addToy();});
+
+/* ── domains ── */
+function toggleDomain(el){
+  el.classList.toggle('on');
+  const n=el.textContent.trim();
+  if(el.classList.contains('on')){if(!selDomains.includes(n))selDomains.push(n);}
+  else selDomains=selDomains.filter(d=>d!==n);
+}
+
+/* ── prompt ── */
+function buildPrompt(){
+  const lvStr=[...selLvs].sort().join(', ');
+  const toyStr=selToys.map(t=>t.replace(/^\S+\s/,'')).join(', ');
+  const domStr=selDomains.length?selDomains.join(', '):'없음(자유롭게)';
+  const seed=Math.floor(Math.random()*99999);
+  const lvEx={
+    1:`레벨1:\n- 표현언어: 발성 요청(아~,음~), 1어절 모방(빵빵,칙칙)\n- 수용언어: 1어절 지시 따르기(줘,해봐,여기)\n- 모방: 사물모방(차 굴리기), 동작모방(박수,손흔들기)\n- 공동주의: 물건 내밀기, 가까이 가리키기, 눈맞추며 미소\n- 소근육: 두 손 사용, 컵에 물건 넣기\n- 사회성: 교대로 놀기, 사회적 미소`,
+    2:`레벨2:\n- 표현언어: 1~2어절 요청("기차 줘","더 해"), 기능어 5개 이상\n- 수용언어: 2단계 지시("가져와서 줘"), 신체부위 2~3개\n- 모방: 새 동작 즉시 모방, 2단계 연쇄모방\n- 공동주의: 보여주기("봐봐!"), 먼거리 가리키기\n- 소근육: 간단 퍼즐, 뚜껑 열기/닫기\n- 사회성: 놀이 중 웃으며 쳐다보기, 인사몸짓`,
+    3:`레벨3:\n- 표현언어: 2어절 조합("빨간 차"), 도움요청("열어줘")\n- 수용언어: 형용사 포함 지시("큰 블록 줘")\n- 모방: 3단계 연쇄모방, 역할놀이 모방\n- 인지: 색깔/모양 변별, 크기비교, 수량(1~3)\n- 소근육: 가위질, 모양맞추기\n- 사회성: 병렬놀이, 차례 기다리기`,
+    4:`레벨4:\n- 표현언어: 3어절 이상 문장, 과거/미래 시제\n- 수용언어: 2~3단계 지시, "왜/어떻게" 이해\n- 인지: 서열/분류, 숫자 1~5\n- 소근육: 선따라 자르기, 단추/지퍼\n- 사회성: 협동놀이, 규칙 있는 게임\n- 역할놀이: 2~3단계 역할 연기`
+  };
+  const ex=[...selLvs].sort().map(l=>lvEx[l]||'').join('\n\n');
+  return `당신은 ESDM 전문 치료사입니다. 아래 조건으로 JAR(공동활동루틴) 계획을 작성하세요.
+[시드:${seed}] 매번 새로운 아이디어로 작성하세요.
+
+조건:
+- 레벨: ${lvStr}
+- 놀잇감: ${toyStr}
+- 목표영역: ${domStr}
+
+레벨 참고:
+${ex}
+
+아래 형식을 정확히 따르세요. 부모가 집에서 바로 쓸 수 있도록 구체적으로 쓰세요.
+
+### 구성 (Setup)
+준비물과 환경 배치. 아이 관심 끄는 초기 접근 1~2가지.
+
+### 목표행동
+영역별 구체 목표:
+- 표현언어: [예시]
+- 수용언어: [예시]
+- 모방: [예시]
+- [선택 영역]: [예시]
+
+### 주제 (Theme)
+부모-아이 교대 장면 5~7개.
+형식: - 장면 → 부모 언어/행동 예시 → 전략 포인트
+
+### 변형 (Variation)
+2~3가지 변형.
+형식: 변형1] 제목 — 설명
+
+### 마무리 (Closing)
+전환 신호와 정리 루틴 2~3가지.
+
+### 추천 노래
+동요 1~2곡과 활용법.
+
+### 부모 실천 팁
+1. 아이 주도 따르기 — 이 놀이에서 구체적으로
+2. 기다리기(time delay) — 이 놀이에서 구체적으로
+3. 교대하기(turn-taking) — 이 놀이에서 구체적으로
+
+한국어로 작성. 섹션 제목은 ### 으로 시작.`;
+}
+
+/* ── parse/render ── */
+function getSection(txt,headers){
+  for(const h of headers){
+    const esc=h.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const m=txt.match(new RegExp(`###\\s*${esc}[^\n]*\n([\\s\\S]*?)(?=###|$)`,'i'));
+    if(m)return m[1].trim();
+  }
+  return '';
+}
+function md2html(txt){
+  return txt
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*([^*]+?)\*/g,'<em>$1</em>')
+    .replace(/((?:^[-•] .+\n?)+)/gm,match=>{
+      const items=match.trim().split('\n').map(l=>l.replace(/^[-•] /,'').trim()).filter(Boolean);
+      return '<ul>'+items.map(i=>`<li>${i}</li>`).join('')+'</ul>';
+    })
+    .replace(/\n{2,}/g,'<br>').replace(/\n/g,'<br>');
+}
+function card(cls,icon,label,step,body){
+  const stepHtml=step?`<span class="step-badge">STEP ${step}</span>`:'';
+  return `<div class="phase-card ${cls}"><div class="phase-head"><span>${icon} ${label}</span>${stepHtml}</div><div class="phase-body">${body}</div></div>`;
+}
+function renderFull(txt,toyLabel){
+  rawText=txt;
+  document.getElementById('rTitle').textContent=toyLabel+' JAR 루틴';
+  document.getElementById('copyBtn').style.display='inline-block';
+  const s={
+    setup: getSection(txt,['구성 (Setup)','Setup','구성']),
+    goal:  getSection(txt,['목표행동','목표 행동']),
+    theme: getSection(txt,['주제 (Theme)','Theme','주제']),
+    var:   getSection(txt,['변형 (Variation)','Variation','변형']),
+    close: getSection(txt,['마무리 (Closing)','Closing','마무리']),
+    song:  getSection(txt,['추천 노래','노래']),
+    tip:   getSection(txt,['부모 실천 팁','실천 팁','부모 팁']),
+  };
+  let html='';
+  if(s.setup) html+=card('p-setup','🟠','구성 · Setup','1',md2html(s.setup));
+  if(s.goal){
+    const tagMap={'표현언어':'ttag-lang','수용언어':'ttag-lang','모방':'ttag-imitation',
+      '사회성':'ttag-social','공동주의':'ttag-joint','소근육':'ttag-motor','대근육':'ttag-motor','인지':'ttag-cog'};
+    const tags=s.goal.split('\n').filter(l=>l.trim().startsWith('-')).map(l=>{
+      const m=l.match(/^[-•]\s*(.+?)[:：]/);
+      if(!m)return '';
+      const k=m[1].trim();
+      const cls=Object.keys(tagMap).find(t=>k.includes(t))||'';
+      return `<span class="ttag ${tagMap[cls]||'ttag-cog'}">${k}</span>`;
+    }).filter(Boolean).join('');
+    if(tags) html+=`<div class="tags-row">${tags}</div>`;
+    html+=card('p-theme','🎯','목표행동','',md2html(s.goal));
+  }
+  if(s.theme) html+=card('p-theme','🔵','주제 · Theme','2',md2html(s.theme));
+  if(s.var)   html+=card('p-var',  '🟢','변형 · Variation','3',md2html(s.var));
+  if(s.close) html+=card('p-close','⬛','마무리 · Closing','4',md2html(s.close));
+  if(s.song)  html+=card('p-song', '🎵','추천 노래','',md2html(s.song));
+  if(s.tip)   html+=card('p-tip',  '💡','부모 실천 팁','',md2html(s.tip));
+  if(!html)   html=`<div id="stream-raw">${txt.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>`;
+  document.getElementById('rBody').innerHTML=html;
+}
+
+/* ── copy ── */
+function buildDocText(){
+  const title=document.getElementById('rTitle').textContent;
+  const lvStr=[...selLvs].sort().map(l=>`레벨${l}`).join(', ');
+  const date=new Date().toLocaleDateString('ko-KR');
+  const div='─'.repeat(38);
+  const labels={setup:'🟠 구성 (Setup)',goal:'🎯 목표행동',theme:'🔵 주제 (Theme)',
+    var:'🟢 변형 (Variation)',close:'⬛ 마무리 (Closing)',song:'🎵 추천 노래',tip:'💡 부모 실천 팁'};
+  const secs={
+    setup:getSection(rawText,['구성 (Setup)','Setup','구성']),
+    goal:getSection(rawText,['목표행동','목표 행동']),
+    theme:getSection(rawText,['주제 (Theme)','Theme','주제']),
+    var:getSection(rawText,['변형 (Variation)','Variation','변형']),
+    close:getSection(rawText,['마무리 (Closing)','Closing','마무리']),
+    song:getSection(rawText,['추천 노래','노래']),
+    tip:getSection(rawText,['부모 실천 팁','실천 팁','부모 팁']),
+  };
+  let out=`ESDM JAR 공동활동루틴 계획\n${title}  |  ${lvStr}  |  ${date}\n© 2026 JIN HEE LEE · BCBA / ESDM Certified Therapist\n${div}\n\n`;
+  for(const[k,label] of Object.entries(labels)){
+    if(!secs[k])continue;
+    const plain=secs[k]
+      .replace(/<ul>/gi,'\n').replace(/<\/ul>/gi,'')
+      .replace(/<li>/gi,'  • ').replace(/<\/li>/gi,'\n')
+      .replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'')
+      .replace(/\n{3,}/g,'\n\n').trim();
+    out+=`${label}\n${div}\n${plain}\n\n`;
+  }
+  out+=`${div}\n© 2026 JIN HEE LEE · BCBA / ESDM Certified Therapist`;
+  return out;
+}
+function copyForDoc(){
+  const text=buildDocText();
+  const doToast=()=>{
+    const t=document.getElementById('toast');
+    t.style.display='block';
+    clearTimeout(t._t);
+    t._t=setTimeout(()=>t.style.display='none',5000);
+    const b=document.getElementById('copyBtn');
+    b.textContent='✓ 복사됨!';
+    b.style.color='var(--accent3)';
+    setTimeout(()=>{b.textContent='📋 문서로 복사';b.style.color='';},3000);
+  };
+  navigator.clipboard.writeText(text).then(doToast).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.style.cssText='position:fixed;opacity:0;';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);doToast();
+  });
+}
+
+/* ── generate ── */
+async function generate(){
+  if(!selLvs.length){alert('ESDM 레벨을 선택해 주세요.');return;}
+  if(!selToys.length){alert('놀잇감을 선택해 주세요.');return;}
+
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true; btn.textContent='생성 중…';
+
+  const toyLabel=selToys.map(t=>t.replace(/^\S+\s/,'')).join(', ');
+  document.getElementById('rTitle').textContent=toyLabel+' JAR 루틴';
+  document.getElementById('copyBtn').style.display='none';
+  document.getElementById('rBody').innerHTML='<div class="loading"><div class="spin"></div><p>JAR 계획을 생성하고 있습니다…</p></div>';
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2200,
+        stream:true,
+        messages:[{role:'user',content:buildPrompt()}]
+      })
+    });
+    if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'API 오류');}
+
+    const reader=resp.body.getReader();
+    const dec=new TextDecoder();
+    let full='',buf='';
+    document.getElementById('rBody').innerHTML='<div id="stream-raw"></div>';
+    const box=document.getElementById('stream-raw');
+
+    while(true){
+      const{done,value}=await reader.read();
+      if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n');buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        const d=line.slice(6).trim();
+        if(d==='[DONE]')continue;
+        try{const p=JSON.parse(d);const delta=p.delta?.text||'';if(delta){full+=delta;box.textContent=full;}}catch{}
+      }
+    }
+    renderFull(full,toyLabel);
+  }catch(e){
+    document.getElementById('rBody').innerHTML=`<div class="err">오류가 발생했습니다.<br><br>${e.message}</div>`;
+  }finally{
+    btn.disabled=false;btn.textContent='JAR 계획 생성하기 →';
+  }
+}
+</script>
+</body>
+</html>
