@@ -1,7 +1,6 @@
 export const config = { runtime: 'edge' };
 
 export default async function handler(req) {
-  // CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -30,7 +29,6 @@ export default async function handler(req) {
 
   try {
     const body = await req.json();
-
     const upstream = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -41,7 +39,6 @@ export default async function handler(req) {
       body: JSON.stringify(body),
     });
 
-    // 스트리밍 그대로 전달
     return new Response(upstream.body, {
       status: upstream.status,
       headers: {
