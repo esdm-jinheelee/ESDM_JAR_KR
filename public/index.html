@@ -7,92 +7,83 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f4efe6;
-  --surface: #fffdf8;
-  --surface2: #ede8de;
-  --accent:  #d4703a;
-  --accent2: #4a7fa0;
-  --accent3: #5e9e72;
-  --text:  #2a2018;
-  --text2: #6a5e4e;
-  --border: #cfc4b0;
-  --r: 14px;
+  --bg:#f4efe6; --surface:#fffdf8; --surface2:#ede8de;
+  --accent:#d4703a; --accent2:#4a7fa0; --accent3:#5e9e72;
+  --text:#2a2018; --text2:#6a5e4e; --border:#cfc4b0; --r:14px;
   --c-setup-bg:#fff4ec; --c-setup-bd:#d4703a;
   --c-theme-bg:#edf5fb; --c-theme-bd:#4a7fa0;
-  --c-var-bg:  #eef7f1; --c-var-bd:  #5e9e72;
+  --c-var-bg:#eef7f1;   --c-var-bd:#5e9e72;
   --c-close-bg:#f5f1ec; --c-close-bd:#9a8060;
-  --c-song-bg: #f5eefb; --c-song-bd: #9060c0;
-  --c-tip-bg:  #fffbee; --c-tip-bd:  #c09830;
+  --c-song-bg:#f5eefb;  --c-song-bd:#9060c0;
+  --c-tip-bg:#fffbee;   --c-tip-bd:#c09830;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);}
-const DAILY_LIMIT = 10;
-/* ── 잠금 화면 ── */
+
+/* ── 잠금화면 ── */
 #lockScreen{
-  position:fixed;inset:0;background:var(--bg);
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:var(--bg);
   display:flex;align-items:center;justify-content:center;
   z-index:9999;
 }
 .lock-box{
   background:var(--surface);border:1.5px solid var(--border);
-  border-radius:18px;padding:40px 36px;
-  box-shadow:0 8px 32px rgba(44,35,24,.12);
-  text-align:center;width:320px;max-width:90vw;
+  border-radius:20px;padding:44px 38px;
+  box-shadow:0 8px 32px rgba(44,35,24,.14);
+  text-align:center;width:340px;max-width:92vw;
 }
 .lock-logo{
-  width:52px;height:52px;background:var(--accent);border-radius:13px;
-  display:grid;place-items:center;margin:0 auto 16px;
-  font-family:'Gowun Dodum',sans-serif;font-size:26px;font-weight:700;color:#fff;
+  width:54px;height:54px;background:var(--accent);border-radius:14px;
+  display:grid;place-items:center;margin:0 auto 18px;
+  font-family:'Gowun Dodum',sans-serif;font-size:27px;font-weight:700;color:#fff;
 }
-.lock-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:4px;}
-.lock-sub{font-size:0.78rem;color:var(--text2);margin-bottom:24px;line-height:1.5;}
+.lock-title{font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:5px;}
+.lock-sub{font-size:0.78rem;color:var(--text2);margin-bottom:26px;line-height:1.55;}
 .lock-input{
-  width:100%;padding:11px 14px;
+  width:100%;padding:12px 14px;
   border:1.5px solid var(--border);border-radius:10px;
-  font-size:0.9rem;font-family:'Noto Sans KR',sans-serif;
+  font-size:0.95rem;font-family:'Noto Sans KR',sans-serif;
   background:var(--surface2);color:var(--text);
-  outline:none;text-align:center;letter-spacing:.15em;
+  outline:none;text-align:center;letter-spacing:.18em;
   transition:border-color .15s;margin-bottom:12px;
 }
 .lock-input:focus{border-color:var(--accent);}
 .lock-btn{
-  width:100%;padding:12px;border:none;border-radius:10px;
+  width:100%;padding:13px;border:none;border-radius:11px;
   background:var(--accent);color:#fff;
-  font-size:0.9rem;font-weight:700;
+  font-size:0.92rem;font-weight:700;
   font-family:'Noto Sans KR',sans-serif;cursor:pointer;
-  transition:all .15s;box-shadow:0 4px 14px rgba(212,112,58,.25);
+  box-shadow:0 4px 14px rgba(212,112,58,.25);transition:all .15s;
 }
 .lock-btn:hover{background:#b85a25;}
-.lock-err{
-  font-size:0.78rem;color:#c03030;margin-top:10px;
-  min-height:18px;
-}
-.lock-footer{font-size:0.65rem;color:#b0a898;margin-top:20px;letter-spacing:.08em;}
+.lock-err{font-size:0.77rem;color:#c03030;margin-top:10px;min-height:18px;}
+.lock-footer{font-size:0.64rem;color:#b0a898;margin-top:22px;letter-spacing:.08em;line-height:1.6;}
 
-/* header */
+/* ── header ── */
 header{background:#1e1610;color:#fff;padding:16px 26px;display:flex;align-items:center;gap:13px;}
 .logo{width:38px;height:38px;background:var(--accent);border-radius:9px;display:grid;place-items:center;
   font-family:'Gowun Dodum',sans-serif;font-size:19px;font-weight:700;color:#fff;flex-shrink:0;}
 header h1{font-size:1rem;font-weight:700;}
 header p{font-size:0.73rem;color:#9a8e80;margin-top:1px;}
 
-/* layout */
+/* ── layout ── */
 .wrap{max-width:980px;margin:0 auto;padding:22px 16px 60px;
   display:grid;grid-template-columns:288px 1fr;gap:18px;align-items:start;}
 @media(max-width:680px){.wrap{grid-template-columns:1fr;}}
 
-/* card */
+/* ── card ── */
 .card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);
   padding:20px;box-shadow:0 2px 10px rgba(44,35,24,.08);}
 .card-title{font-size:.67rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
   color:var(--text2);padding-bottom:11px;margin-bottom:16px;border-bottom:1px solid var(--border);}
 
-/* field */
+/* ── field ── */
 .field{margin-bottom:18px;}
 .field>label{display:block;font-size:.79rem;font-weight:600;color:var(--text2);margin-bottom:8px;}
 .req::after{content:' *';color:var(--accent);}
 
-/* level grid */
+/* ── level ── */
 .lvl-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .lvl-btn{padding:9px 7px;text-align:center;border:1.5px solid var(--border);border-radius:9px;
   background:var(--surface2);cursor:pointer;font-size:.77rem;font-family:'Noto Sans KR',sans-serif;
@@ -102,7 +93,7 @@ header p{font-size:0.73rem;color:#9a8e80;margin-top:1px;}
 .lvl-note{font-size:.69rem;color:var(--text2);margin-top:7px;padding:7px 9px;
   background:var(--surface2);border-radius:7px;line-height:1.55;}
 
-/* chips */
+/* ── chips ── */
 .chips{display:flex;flex-wrap:wrap;gap:5px;}
 .chip{padding:5px 10px;border:1.5px solid var(--border);border-radius:18px;background:var(--surface2);
   font-size:.75rem;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;
@@ -116,26 +107,25 @@ header p{font-size:0.73rem;color:#9a8e80;margin-top:1px;}
 .add-row input:focus{border-color:var(--accent2);}
 .add-row button{padding:7px 12px;border:none;border-radius:8px;background:var(--accent2);
   color:#fff;font-size:.77rem;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
-.add-row button:hover{opacity:.85;}
 
-/* domain */
+/* ── domain ── */
 .domain-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
 .d-item{display:flex;align-items:center;gap:6px;padding:7px 9px;border:1.5px solid var(--border);
   border-radius:8px;background:var(--surface2);cursor:pointer;font-size:.75rem;color:var(--text2);
   transition:all .15s;user-select:none;-webkit-user-select:none;}
 .d-item:hover{border-color:var(--accent3);}
 .d-item.on{border-color:var(--accent3);background:#e8f5ec;color:#2e6040;font-weight:600;}
-.d-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .15s;}
+.d-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;}
 .d-item.on .d-dot{background:var(--accent3);}
 
-/* gen button */
+/* ── gen button ── */
 .gen-btn{width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);color:#fff;
   font-size:.9rem;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;margin-top:5px;
   transition:all .15s;box-shadow:0 4px 14px rgba(212,112,58,.25);}
 .gen-btn:hover:not(:disabled){background:#b85a25;}
 .gen-btn:disabled{opacity:.5;cursor:not-allowed;}
 
-/* result wrap */
+/* ── result ── */
 .result-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);
   box-shadow:0 2px 10px rgba(44,35,24,.08);overflow:hidden;min-height:300px;}
 .result-top{padding:13px 18px;border-bottom:1px solid var(--border);
@@ -149,19 +139,19 @@ header p{font-size:0.73rem;color:#9a8e80;margin-top:1px;}
 .copy-btn:hover{border-color:var(--accent);color:var(--accent);}
 .result-body{padding:18px;}
 
-/* placeholder */
+/* ── placeholder ── */
 .ph{text-align:center;padding:56px 22px;color:var(--text2);}
 .ph-icon{font-size:42px;margin-bottom:11px;opacity:.32;}
 .ph-txt{font-size:.84rem;line-height:1.7;}
 
-/* loading */
+/* ── loading ── */
 .loading{text-align:center;padding:56px 22px;}
 .spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);
   border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 13px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading p{font-size:.84rem;color:var(--text2);}
 
-/* phase cards */
+/* ── phase cards ── */
 .phase-card{border-radius:11px;border:1.5px solid;overflow:hidden;margin-bottom:12px;}
 .phase-head{padding:9px 15px;display:flex;align-items:center;justify-content:space-between;
   font-size:.73rem;font-weight:700;letter-spacing:.05em;}
@@ -169,8 +159,6 @@ header p{font-size:0.73rem;color:#9a8e80;margin-top:1px;}
 .phase-body{padding:13px 15px;font-size:.83rem;line-height:1.8;}
 .phase-body ul{padding-left:15px;margin:5px 0;}
 .phase-body li{margin-bottom:4px;}
-.phase-body p{margin-bottom:5px;}
-
 .p-setup{border-color:var(--c-setup-bd);}
 .p-setup .phase-head{background:var(--c-setup-bd);color:#fff;}
 .p-setup .phase-body{background:var(--c-setup-bg);}
@@ -190,7 +178,7 @@ header p{font-size:0.73rem;color:#9a8e80;margin-top:1px;}
 .p-tip .phase-head{background:var(--c-tip-bd);color:#fff;}
 .p-tip .phase-body{background:var(--c-tip-bg);}
 
-/* tags */
+/* ── tags ── */
 .tags-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
 .ttag{padding:3px 10px;border-radius:18px;font-size:.71rem;font-weight:600;}
 .ttag-lang{background:#ddeef8;color:#2a5e80;}
@@ -200,28 +188,23 @@ header p{font-size:0.73rem;color:#9a8e80;margin-top:1px;}
 .ttag-joint{background:#fde8d8;color:#904020;}
 .ttag-motor{background:#f8f0d8;color:#806020;}
 
-/* error */
+/* ── misc ── */
 .err{padding:16px;background:#fff0f0;border:1px solid #f0c0c0;border-radius:9px;
   color:#b03030;font-size:.83rem;line-height:1.6;}
-
-/* stream */
 #stream-raw{font-size:.83rem;line-height:1.85;white-space:pre-wrap;}
-
-/* toast */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
   background:#1e1610;color:#fff;padding:12px 20px;border-radius:11px;
   font-size:.81rem;font-family:'Noto Sans KR',sans-serif;line-height:1.6;
   box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;text-align:center;
   max-width:320px;width:90%;display:none;}
 .toast small{font-size:.72rem;color:#c0b0a0;}
-
 footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
-  letter-spacing:.1em;color:#9a8e80;font-family:'Noto Sans KR',sans-serif;}
+  letter-spacing:.1em;color:#9a8e80;}
 </style>
 </head>
 <body>
 
-<!-- ── 잠금 화면 ── -->
+<!-- ── 잠금화면 ── -->
 <div id="lockScreen">
   <div class="lock-box">
     <div class="lock-logo">E</div>
@@ -230,14 +213,14 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
     <input class="lock-input" id="lockInput" type="password"
       placeholder="코드 입력"
       onkeydown="if(event.key==='Enter')checkCode()"
-      autocomplete="off"
-    />
+      autocomplete="off"/>
     <button class="lock-btn" onclick="checkCode()">입장하기 →</button>
     <div class="lock-err" id="lockErr"></div>
     <div class="lock-footer">© 2026 JIN HEE LEE · BCBA / ESDM Certified Therapist</div>
   </div>
 </div>
 
+<!-- ── 앱 본체 ── -->
 <header>
   <div class="logo">E</div>
   <div>
@@ -247,11 +230,9 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
 </header>
 
 <div class="wrap">
-
   <!-- LEFT -->
   <div class="card">
     <div class="card-title">루틴 설정</div>
-
     <div class="field">
       <label class="req">ESDM 레벨 (최대 2개)</label>
       <div class="lvl-grid">
@@ -262,7 +243,6 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
       </div>
       <div class="lvl-note" id="lvNote" style="display:none"></div>
     </div>
-
     <div class="field">
       <label class="req">선호 놀잇감 (1개 이상)</label>
       <div class="chips" id="toyBox">
@@ -287,7 +267,6 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
         <button onclick="addToy()">추가</button>
       </div>
     </div>
-
     <div class="field">
       <label>목표 발달 영역 (선택)</label>
       <div class="domain-grid">
@@ -301,7 +280,6 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
         <div class="d-item" onclick="toggleDomain(this)"><span class="d-dot"></span>인지</div>
       </div>
     </div>
-
     <button class="gen-btn" id="genBtn" onclick="generate()">JAR 계획 생성하기 →</button>
     <div id="usageCounter" style="text-align:center;font-size:.72rem;margin-top:8px;color:#6a5e4e;"></div>
   </div>
@@ -322,36 +300,36 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
       </div>
     </div>
   </div>
-
 </div>
 
 <div class="toast" id="toast">
   클립보드에 복사됐습니다 ✓<br>
-  <small>구글 독스 열기 → Ctrl+V 붙여넣기 → 파일 → PDF 다운로드</small>
+  <small>구글 독스 열기 → Ctrl+V → 파일 → PDF 다운로드</small>
 </div>
 
 <footer>© 2026 JIN HEE LEE · BCBA / ESDM Certified Therapist</footer>
 
 <script>
-/* ── 잠금 화면 ── */
-// 코드는 여기서 변경하세요 (여러 개 가능)
-const ACCESS_CODES = ['ESDM2026'];
+/* ════════════════════════════════
+   설정값 — 여기만 수정하세요
+════════════════════════════════ */
+const ACCESS_CODES = ['ESDM2026']; // 접근 코드
+const DAILY_LIMIT  = 10; // 하루 최대 생성 횟수
 
+/* ── 잠금화면 ── */
 function checkCode(){
   const val = document.getElementById('lockInput').value.trim().toUpperCase();
   const err = document.getElementById('lockErr');
   if(ACCESS_CODES.map(c=>c.toUpperCase()).includes(val)){
     sessionStorage.setItem('jar_auth','1');
     document.getElementById('lockScreen').style.display='none';
-    err.textContent='';
   } else {
     err.textContent='코드가 올바르지 않습니다. 다시 시도해 주세요.';
     document.getElementById('lockInput').value='';
     document.getElementById('lockInput').focus();
   }
 }
-
-// 이미 인증된 경우 잠금 화면 건너뜀
+// 이미 인증된 경우 건너뜀
 if(sessionStorage.getItem('jar_auth')==='1'){
   document.getElementById('lockScreen').style.display='none';
 }
@@ -368,11 +346,10 @@ const lvDesc={
 };
 function toggleLv(btn){
   const lv=+btn.dataset.lv;
-  if(btn.classList.contains('on')){
-    btn.classList.remove('on'); selLvs=selLvs.filter(l=>l!==lv);
-  } else {
+  if(btn.classList.contains('on')){btn.classList.remove('on');selLvs=selLvs.filter(l=>l!==lv);}
+  else{
     if(selLvs.length>=2){alert('레벨은 최대 2개까지 선택할 수 있습니다.');return;}
-    btn.classList.add('on'); selLvs.push(lv);
+    btn.classList.add('on');selLvs.push(lv);
   }
   const note=document.getElementById('lvNote');
   if(!selLvs.length){note.style.display='none';return;}
@@ -391,15 +368,13 @@ function addToy(){
   const v=document.getElementById('toyInput').value.trim();
   if(!v)return;
   const sp=document.createElement('span');
-  sp.className='chip on'; sp.textContent=v;
+  sp.className='chip on';sp.textContent=v;
   sp.onclick=()=>toggleChip(sp);
   document.getElementById('toyBox').appendChild(sp);
   selToys.push(v);
   document.getElementById('toyInput').value='';
 }
 document.getElementById('toyInput').addEventListener('keydown',e=>{if(e.key==='Enter')addToy();});
-// 페이지 로드 시 카운터 표시
-updateCounter();
 
 /* ── domains ── */
 function toggleDomain(el){
@@ -408,6 +383,27 @@ function toggleDomain(el){
   if(el.classList.contains('on')){if(!selDomains.includes(n))selDomains.push(n);}
   else selDomains=selDomains.filter(d=>d!==n);
 }
+
+/* ── 사용량 카운터 ── */
+function getUsage(){
+  const today=new Date().toISOString().slice(0,10);
+  const saved=JSON.parse(localStorage.getItem('jar_usage')||'{}');
+  if(saved.date!==today)return{date:today,count:0};
+  return saved;
+}
+function incrementUsage(){
+  const u=getUsage(); u.count++;
+  localStorage.setItem('jar_usage',JSON.stringify(u));
+  updateCounter();
+}
+function updateCounter(){
+  const remaining=DAILY_LIMIT-getUsage().count;
+  const el=document.getElementById('usageCounter');
+  if(!el)return;
+  el.textContent=`오늘 남은 횟수: ${remaining}/${DAILY_LIMIT}`;
+  el.style.color=remaining<=2?'#d4703a':'#6a5e4e';
+}
+updateCounter();
 
 /* ── prompt ── */
 function buildPrompt(){
@@ -430,10 +426,9 @@ function buildPrompt(){
 - 놀잇감: ${toyStr}
 - 목표영역: ${domStr}
 
-레벨 참고:
-${ex}
+레벨 참고:\n${ex}
 
-아래 형식을 정확히 따르세요. 부모가 집에서 바로 쓸 수 있도록 구체적으로 쓰세요.
+아래 형식을 정확히 따르세요.
 
 ### 구성 (Setup)
 준비물과 환경 배치. 아이 관심 끄는 초기 접근 1~2가지.
@@ -487,43 +482,42 @@ function md2html(txt){
     .replace(/\n{2,}/g,'<br>').replace(/\n/g,'<br>');
 }
 function card(cls,icon,label,step,body){
-  const stepHtml=step?`<span class="step-badge">STEP ${step}</span>`:'';
-  return `<div class="phase-card ${cls}"><div class="phase-head"><span>${icon} ${label}</span>${stepHtml}</div><div class="phase-body">${body}</div></div>`;
+  const sb=step?`<span class="step-badge">STEP ${step}</span>`:'';
+  return `<div class="phase-card ${cls}"><div class="phase-head"><span>${icon} ${label}</span>${sb}</div><div class="phase-body">${body}</div></div>`;
 }
 function renderFull(txt,toyLabel){
   rawText=txt;
   document.getElementById('rTitle').textContent=toyLabel+' JAR 루틴';
   document.getElementById('copyBtn').style.display='inline-block';
   const s={
-    setup: getSection(txt,['구성 (Setup)','Setup','구성']),
-    goal:  getSection(txt,['목표행동','목표 행동']),
-    theme: getSection(txt,['주제 (Theme)','Theme','주제']),
-    var:   getSection(txt,['변형 (Variation)','Variation','변형']),
-    close: getSection(txt,['마무리 (Closing)','Closing','마무리']),
-    song:  getSection(txt,['추천 노래','노래']),
-    tip:   getSection(txt,['부모 실천 팁','실천 팁','부모 팁']),
+    setup:getSection(txt,['구성 (Setup)','Setup','구성']),
+    goal: getSection(txt,['목표행동','목표 행동']),
+    theme:getSection(txt,['주제 (Theme)','Theme','주제']),
+    var:  getSection(txt,['변형 (Variation)','Variation','변형']),
+    close:getSection(txt,['마무리 (Closing)','Closing','마무리']),
+    song: getSection(txt,['추천 노래','노래']),
+    tip:  getSection(txt,['부모 실천 팁','실천 팁','부모 팁']),
   };
   let html='';
-  if(s.setup) html+=card('p-setup','🟠','구성 · Setup','1',md2html(s.setup));
+  if(s.setup)html+=card('p-setup','🟠','구성 · Setup','1',md2html(s.setup));
   if(s.goal){
     const tagMap={'표현언어':'ttag-lang','수용언어':'ttag-lang','모방':'ttag-imitation',
       '사회성':'ttag-social','공동주의':'ttag-joint','소근육':'ttag-motor','대근육':'ttag-motor','인지':'ttag-cog'};
     const tags=s.goal.split('\n').filter(l=>l.trim().startsWith('-')).map(l=>{
-      const m=l.match(/^[-•]\s*(.+?)[:：]/);
-      if(!m)return '';
+      const m=l.match(/^[-•]\s*(.+?)[:：]/);if(!m)return '';
       const k=m[1].trim();
       const cls=Object.keys(tagMap).find(t=>k.includes(t))||'';
       return `<span class="ttag ${tagMap[cls]||'ttag-cog'}">${k}</span>`;
     }).filter(Boolean).join('');
-    if(tags) html+=`<div class="tags-row">${tags}</div>`;
+    if(tags)html+=`<div class="tags-row">${tags}</div>`;
     html+=card('p-theme','🎯','목표행동','',md2html(s.goal));
   }
-  if(s.theme) html+=card('p-theme','🔵','주제 · Theme','2',md2html(s.theme));
-  if(s.var)   html+=card('p-var',  '🟢','변형 · Variation','3',md2html(s.var));
-  if(s.close) html+=card('p-close','⬛','마무리 · Closing','4',md2html(s.close));
-  if(s.song)  html+=card('p-song', '🎵','추천 노래','',md2html(s.song));
-  if(s.tip)   html+=card('p-tip',  '💡','부모 실천 팁','',md2html(s.tip));
-  if(!html)   html=`<div id="stream-raw">${txt.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>`;
+  if(s.theme)html+=card('p-theme','🔵','주제 · Theme','2',md2html(s.theme));
+  if(s.var)  html+=card('p-var',  '🟢','변형 · Variation','3',md2html(s.var));
+  if(s.close)html+=card('p-close','⬛','마무리 · Closing','4',md2html(s.close));
+  if(s.song) html+=card('p-song', '🎵','추천 노래','',md2html(s.song));
+  if(s.tip)  html+=card('p-tip',  '💡','부모 실천 팁','',md2html(s.tip));
+  if(!html)  html=`<div id="stream-raw">${txt.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>`;
   document.getElementById('rBody').innerHTML=html;
 }
 
@@ -533,16 +527,16 @@ function buildDocText(){
   const lvStr=[...selLvs].sort().map(l=>`레벨${l}`).join(', ');
   const date=new Date().toLocaleDateString('ko-KR');
   const div='─'.repeat(38);
-  const labels={setup:'🟠 구성 (Setup)',goal:'🎯 목표행동',theme:'🔵 주제 (Theme)',
-    var:'🟢 변형 (Variation)',close:'⬛ 마무리 (Closing)',song:'🎵 추천 노래',tip:'💡 부모 실천 팁'};
+  const labels={setup:'🟠 구성',goal:'🎯 목표행동',theme:'🔵 주제',
+    var:'🟢 변형',close:'⬛ 마무리',song:'🎵 추천 노래',tip:'💡 부모 실천 팁'};
   const secs={
     setup:getSection(rawText,['구성 (Setup)','Setup','구성']),
-    goal:getSection(rawText,['목표행동','목표 행동']),
+    goal: getSection(rawText,['목표행동','목표 행동']),
     theme:getSection(rawText,['주제 (Theme)','Theme','주제']),
-    var:getSection(rawText,['변형 (Variation)','Variation','변형']),
+    var:  getSection(rawText,['변형 (Variation)','Variation','변형']),
     close:getSection(rawText,['마무리 (Closing)','Closing','마무리']),
-    song:getSection(rawText,['추천 노래','노래']),
-    tip:getSection(rawText,['부모 실천 팁','실천 팁','부모 팁']),
+    song: getSection(rawText,['추천 노래','노래']),
+    tip:  getSection(rawText,['부모 실천 팁','실천 팁','부모 팁']),
   };
   let out=`ESDM JAR 공동활동루틴 계획\n${title}  |  ${lvStr}  |  ${date}\n© 2026 JIN HEE LEE · BCBA / ESDM Certified Therapist\n${div}\n\n`;
   for(const[k,label] of Object.entries(labels)){
@@ -561,12 +555,10 @@ function copyForDoc(){
   const text=buildDocText();
   const doToast=()=>{
     const t=document.getElementById('toast');
-    t.style.display='block';
-    clearTimeout(t._t);
+    t.style.display='block';clearTimeout(t._t);
     t._t=setTimeout(()=>t.style.display='none',5000);
     const b=document.getElementById('copyBtn');
-    b.textContent='✓ 복사됨!';
-    b.style.color='var(--accent3)';
+    b.textContent='✓ 복사됨!';b.style.color='var(--accent3)';
     setTimeout(()=>{b.textContent='📋 문서로 복사';b.style.color='';},3000);
   };
   navigator.clipboard.writeText(text).then(doToast).catch(()=>{
@@ -577,50 +569,24 @@ function copyForDoc(){
   });
 }
 
-/* ── 사용량 제한 (하루 10회) ── */
-const DAILY_LIMIT = 10;
-
-function getUsage(){
-  const today = new Date().toISOString().slice(0,10);
-  const saved = JSON.parse(localStorage.getItem('jar_usage')||'{}');
-  if(saved.date !== today) return {date:today, count:0};
-  return saved;
-}
-function incrementUsage(){
-  const u = getUsage();
-  u.count++;
-  localStorage.setItem('jar_usage', JSON.stringify(u));
-  updateCounter();
-}
-function updateCounter(){
-  const u = getUsage();
-  const remaining = DAILY_LIMIT - u.count;
-  const el = document.getElementById('usageCounter');
-  if(!el) return;
-  el.textContent = `오늘 남은 횟수: ${remaining}/${DAILY_LIMIT}`;
-  el.style.color = remaining <= 2 ? '#d4703a' : '#6a5e4e';
-}
-
 /* ── generate ── */
 async function generate(){
   if(!selLvs.length){alert('ESDM 레벨을 선택해 주세요.');return;}
   if(!selToys.length){alert('놀잇감을 선택해 주세요.');return;}
 
-  // 사용량 체크
-  const usage = getUsage();
-  if(usage.count >= DAILY_LIMIT){
+  const usage=getUsage();
+  if(usage.count>=DAILY_LIMIT){
     document.getElementById('rBody').innerHTML=`
       <div class="err" style="text-align:center;padding:36px 24px;">
         <div style="font-size:2rem;margin-bottom:12px;">🚫</div>
-        <div style="font-size:1rem;font-weight:700;color:#8a2020;margin-bottom:8px;">오늘 사용 한도에 도달했습니다</div>
-        <div style="font-size:0.84rem;color:#b03030;">하루 최대 ${DAILY_LIMIT}회까지 생성할 수 있습니다.<br>내일 자정 이후 다시 이용해 주세요.</div>
+        <div style="font-size:1rem;font-weight:700;margin-bottom:8px;">오늘 사용 한도에 도달했습니다</div>
+        <div>하루 최대 ${DAILY_LIMIT}회까지 생성할 수 있습니다.<br>내일 자정 이후 다시 이용해 주세요.</div>
       </div>`;
     return;
   }
 
   const btn=document.getElementById('genBtn');
-  btn.disabled=true; btn.textContent='생성 중…';
-
+  btn.disabled=true;btn.textContent='생성 중…';
   const toyLabel=selToys.map(t=>t.replace(/^\S+\s/,'')).join(', ');
   document.getElementById('rTitle').textContent=toyLabel+' JAR 루틴';
   document.getElementById('copyBtn').style.display='none';
@@ -646,14 +612,12 @@ async function generate(){
     const box=document.getElementById('stream-raw');
 
     while(true){
-      const{done,value}=await reader.read();
-      if(done)break;
+      const{done,value}=await reader.read();if(done)break;
       buf+=dec.decode(value,{stream:true});
       const lines=buf.split('\n');buf=lines.pop();
       for(const line of lines){
         if(!line.startsWith('data: '))continue;
-        const d=line.slice(6).trim();
-        if(d==='[DONE]')continue;
+        const d=line.slice(6).trim();if(d==='[DONE]')continue;
         try{const p=JSON.parse(d);const delta=p.delta?.text||'';if(delta){full+=delta;box.textContent=full;}}catch{}
       }
     }
