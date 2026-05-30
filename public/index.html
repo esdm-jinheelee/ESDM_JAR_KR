@@ -200,6 +200,51 @@ header p{font-size:0.73rem;color:#9a8e80;margin-top:1px;}
 .toast small{font-size:.72rem;color:#c0b0a0;}
 footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
   letter-spacing:.1em;color:#9a8e80;}
+
+/* ── PDF 버튼 ── */
+.pdf-btn{
+  padding:6px 13px;border:none;border-radius:7px;
+  background:var(--accent3);color:#fff;
+  font-size:.71rem;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;transition:all .15s;
+  margin-left:6px;
+}
+.pdf-btn:hover{background:#4a8a5a;}
+
+/* ── 인쇄 스타일 ── */
+@media print {
+  @page { size:A4; margin:14mm 12mm; }
+  body > *:not(#printArea){ display:none !important; }
+  #printArea{
+    display:block !important;
+    font-family:'Noto Sans KR',sans-serif;
+    color:#2a2018;
+  }
+  .print-header{
+    display:flex;align-items:center;gap:12px;
+    padding-bottom:10px;margin-bottom:14px;
+    border-bottom:2.5px solid #1e1610;
+  }
+  .print-logo{
+    width:36px;height:36px;background:#d4703a;
+    border-radius:8px;display:grid;place-items:center;
+    font-size:18px;font-weight:700;color:#fff;flex-shrink:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  .print-title{font-size:13pt;font-weight:700;color:#1e1610;}
+  .print-sub{font-size:8pt;color:#6a5e4e;margin-top:2px;}
+  .phase-card{break-inside:avoid;margin-bottom:8px !important;border-radius:8px !important;}
+  .phase-head{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  .phase-body{
+    -webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;
+    font-size:8.5pt !important;line-height:1.6 !important;
+  }
+  .tags-row,.ttag{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  .print-footer{
+    margin-top:14px;padding-top:8px;border-top:1px solid #ccc;
+    text-align:center;font-size:7pt;color:#9a8e80;letter-spacing:.08em;
+  }
+}
 </style>
 </head>
 <body>
@@ -292,6 +337,7 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
         <span class="r-title" id="rTitle">생성 결과</span>
       </div>
       <button class="copy-btn" id="copyBtn" onclick="copyForDoc()" style="display:none">📋 문서로 복사</button>
+      <button class="pdf-btn" id="pdfBtn" onclick="printPDF()" style="display:none">🖨 PDF 출력</button>
     </div>
     <div class="result-body" id="rBody">
       <div class="ph">
@@ -300,6 +346,19 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
       </div>
     </div>
   </div>
+</div>
+
+<!-- 인쇄 전용 영역 -->
+<div id="printArea" style="display:none;">
+  <div class="print-header">
+    <div class="print-logo">E</div>
+    <div>
+      <div class="print-title">ESDM JAR 공동활동루틴 계획</div>
+      <div class="print-sub" id="printSub"></div>
+    </div>
+  </div>
+  <div id="printContent"></div>
+  <div class="print-footer">© 2026 JIN HEE LEE · BCBA / ESDM Certified Therapist</div>
 </div>
 
 <div class="toast" id="toast">
@@ -489,6 +548,7 @@ function renderFull(txt,toyLabel){
   rawText=txt;
   document.getElementById('rTitle').textContent=toyLabel+' JAR 루틴';
   document.getElementById('copyBtn').style.display='inline-block';
+  document.getElementById('pdfBtn').style.display='inline-block';
   const s={
     setup:getSection(txt,['구성 (Setup)','Setup','구성']),
     goal: getSection(txt,['목표행동','목표 행동']),
@@ -567,6 +627,25 @@ function copyForDoc(){
     document.body.appendChild(ta);ta.select();document.execCommand('copy');
     document.body.removeChild(ta);doToast();
   });
+}
+
+/* ── PDF 출력 ── */
+function printPDF(){
+  const toyLabel = document.getElementById('rTitle').textContent;
+  const lvStr = [...selLvs].sort().map(l=>`레벨${l}`).join(', ');
+  const date = new Date().toLocaleDateString('ko-KR');
+
+  // 인쇄 영역에 내용 복사
+  document.getElementById('printSub').textContent = `${toyLabel}  |  ${lvStr}  |  ${date}`;
+  document.getElementById('printContent').innerHTML = document.getElementById('rBody').innerHTML;
+  document.getElementById('printArea').style.display = 'block';
+
+  window.print();
+
+  // 인쇄 후 숨기기
+  setTimeout(()=>{
+    document.getElementById('printArea').style.display = 'none';
+  }, 1000);
 }
 
 /* ── generate ── */
