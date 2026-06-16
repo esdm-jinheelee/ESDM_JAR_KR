@@ -375,6 +375,40 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
 const ACCESS_CODES = ['ESDM2026']; // 접근 코드
 const DAILY_LIMIT  = 10; // 하루 최대 생성 횟수
 
+  {
+  'ESDM2026':  { limit: 999, expire: '2026-12-31' }, // 관리자용
+  'ESDM47':  { limit: 30, expire: '2026-07-05' },
+'JARKO3':  { limit: 30, expire: '2026-07-05' },
+'ESDMQ9':  { limit: 30, expire: '2026-07-05' },
+'NDBI2E':  { limit: 30, expire: '2026-07-05' },
+'ESDM8W':  { limit: 30, expire: '2026-07-05' },
+'JARE5K':  { limit: 30, expire: '2026-07-05' },
+'ESDMX4':  { limit: 30, expire: '2026-07-05' },
+'KR9ESM':  { limit: 30, expire: '2026-07-05' },
+'ESDM2R':  { limit: 30, expire: '2026-07-05' },
+'JAR7NE':  { limit: 30, expire: '2026-07-05' },
+    'ESDM47':   { limit: 30, expire: '2026-07-05' },
+  'JARKO3':   { limit: 30, expire: '2026-07-05' },
+  'ESDMQ9':   { limit: 30, expire: '2026-07-05' },
+  'NDBI2E':   { limit: 30, expire: '2026-07-05' },
+  'ESDM8W':   { limit: 30, expire: '2026-07-05' },
+  'JARE5K':   { limit: 30, expire: '2026-07-05' },
+  'ESDMX4':   { limit: 30, expire: '2026-07-05' },
+  'KR9ESM':   { limit: 30, expire: '2026-07-05' },
+  'ESDM2R':   { limit: 30, expire: '2026-07-05' },
+  'JAR7NE':   { limit: 30, expire: '2026-07-05' },
+  'ESDMB6':   { limit: 30, expire: '2026-07-05' },
+  'JAR4WK':   { limit: 30, expire: '2026-07-05' },
+  'ESDMZ1':   { limit: 30, expire: '2026-07-05' },
+  'NDB5JR':   { limit: 30, expire: '2026-07-05' },
+  'ESDM3V':   { limit: 30, expire: '2026-07-05' },
+  'KRESM9':   { limit: 30, expire: '2026-07-05' },
+  'ESDMH7':   { limit: 30, expire: '2026-07-05' },
+  'JAR2MN':   { limit: 30, expire: '2026-07-05' },
+  'ESDMF5':   { limit: 30, expire: '2026-07-05' },
+  'JAR8QE':   { limit: 30, expire: '2026-07-05' },
+
+
 /* ── 잠금화면 ── */
 function checkCode(){
   const val = document.getElementById('lockInput').value.trim().toUpperCase();
