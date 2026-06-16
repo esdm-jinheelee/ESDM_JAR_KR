@@ -369,25 +369,16 @@ footer{text-align:center;padding:16px 20px 26px;font-size:.67rem;
 <footer>© 2026 JIN HEE LEE · BCBA / ESDM Certified Therapist</footer>
 
 <script>
-/* ════════════════════════════════
+/* ════════════════════════════════════════════════
    설정값 — 여기만 수정하세요
-════════════════════════════════ */
-const ACCESS_CODES = ['ESDM2026']; // 접근 코드
-const DAILY_LIMIT  = 10; // 하루 최대 생성 횟수
 
-  {
+   각 코드별:
+   - limit  : 총 사용 가능 횟수 (999 = 사실상 무제한)
+   - expire : 만료일 YYYY-MM-DD
+════════════════════════════════════════════════ */
+const ACCESS_CODES = {
   'ESDM2026':  { limit: 999, expire: '2026-12-31' }, // 관리자용
-  'ESDM47':  { limit: 30, expire: '2026-07-05' },
-'JARKO3':  { limit: 30, expire: '2026-07-05' },
-'ESDMQ9':  { limit: 30, expire: '2026-07-05' },
-'NDBI2E':  { limit: 30, expire: '2026-07-05' },
-'ESDM8W':  { limit: 30, expire: '2026-07-05' },
-'JARE5K':  { limit: 30, expire: '2026-07-05' },
-'ESDMX4':  { limit: 30, expire: '2026-07-05' },
-'KR9ESM':  { limit: 30, expire: '2026-07-05' },
-'ESDM2R':  { limit: 30, expire: '2026-07-05' },
-'JAR7NE':  { limit: 30, expire: '2026-07-05' },
-    'ESDM47':   { limit: 30, expire: '2026-07-05' },
+  'ESDM47':   { limit: 30, expire: '2026-07-05' },
   'JARKO3':   { limit: 30, expire: '2026-07-05' },
   'ESDMQ9':   { limit: 30, expire: '2026-07-05' },
   'NDBI2E':   { limit: 30, expire: '2026-07-05' },
@@ -409,23 +400,52 @@ const DAILY_LIMIT  = 10; // 하루 최대 생성 횟수
   'JAR8QE':   { limit: 30, expire: '2026-07-05' },
 
 
+/* ── 현재 사용 중인 코드 ── */
+let currentCode = '';
+
 /* ── 잠금화면 ── */
 function checkCode(){
   const val = document.getElementById('lockInput').value.trim().toUpperCase();
   const err = document.getElementById('lockErr');
-  if(ACCESS_CODES.map(c=>c.toUpperCase()).includes(val)){
-    sessionStorage.setItem('jar_auth','1');
-    document.getElementById('lockScreen').style.display='none';
-  } else {
-    err.textContent='코드가 올바르지 않습니다. 다시 시도해 주세요.';
-    document.getElementById('lockInput').value='';
+  const info = ACCESS_CODES[val];
+
+  if(!info){
+    err.textContent = '코드가 올바르지 않습니다. 다시 시도해 주세요.';
+    document.getElementById('lockInput').value = '';
     document.getElementById('lockInput').focus();
+    return;
   }
+  const today = new Date().toISOString().slice(0,10);
+  if(today > info.expire){
+    err.textContent = '만료된 코드입니다. 관리자에게 문의해 주세요.';
+    document.getElementById('lockInput').value = '';
+    return;
+  }
+  if(getUsedCount(val) >= info.limit){
+    err.textContent = `사용 횟수(${info.limit}회)를 모두 소진했습니다.`;
+    document.getElementById('lockInput').value = '';
+    return;
+  }
+  currentCode = val;
+  sessionStorage.setItem('jar_auth', val);
+  document.getElementById('lockScreen').style.display = 'none';
+  updateCounter();
 }
-// 이미 인증된 경우 건너뜀
-if(sessionStorage.getItem('jar_auth')==='1'){
-  document.getElementById('lockScreen').style.display='none';
-}
+
+// 페이지 로드 시 이미 인증된 경우
+(function(){
+  const saved = sessionStorage.getItem('jar_auth');
+  if(saved && ACCESS_CODES[saved]){
+    const today = new Date().toISOString().slice(0,10);
+    const info = ACCESS_CODES[saved];
+    if(today <= info.expire && getUsedCount(saved) < info.limit){
+      currentCode = saved;
+      document.getElementById('lockScreen').style.display = 'none';
+    } else {
+      sessionStorage.removeItem('jar_auth');
+    }
+  }
+})();
 
 /* ── state ── */
 let selLvs=[], selToys=[], selDomains=[], rawText='';
@@ -458,14 +478,11 @@ function toggleChip(el){
   else selToys=selToys.filter(t=>t!==n);
 }
 function addToy(){
-  const v=document.getElementById('toyInput').value.trim();
-  if(!v)return;
+  const v=document.getElementById('toyInput').value.trim();if(!v)return;
   const sp=document.createElement('span');
-  sp.className='chip on';sp.textContent=v;
-  sp.onclick=()=>toggleChip(sp);
+  sp.className='chip on';sp.textContent=v;sp.onclick=()=>toggleChip(sp);
   document.getElementById('toyBox').appendChild(sp);
-  selToys.push(v);
-  document.getElementById('toyInput').value='';
+  selToys.push(v);document.getElementById('toyInput').value='';
 }
 document.getElementById('toyInput').addEventListener('keydown',e=>{if(e.key==='Enter')addToy();});
 
@@ -477,24 +494,25 @@ function toggleDomain(el){
   else selDomains=selDomains.filter(d=>d!==n);
 }
 
-/* ── 사용량 카운터 ── */
-function getUsage(){
-  const today=new Date().toISOString().slice(0,10);
-  const saved=JSON.parse(localStorage.getItem('jar_usage')||'{}');
-  if(saved.date!==today)return{date:today,count:0};
-  return saved;
+/* ── 사용량 관리 (코드별 누적) ── */
+function getUsedCount(code){
+  return parseInt(localStorage.getItem('jar_used_' + code) || '0');
 }
 function incrementUsage(){
-  const u=getUsage(); u.count++;
-  localStorage.setItem('jar_usage',JSON.stringify(u));
+  if(!currentCode)return;
+  const count = getUsedCount(currentCode) + 1;
+  localStorage.setItem('jar_used_' + currentCode, count);
   updateCounter();
 }
 function updateCounter(){
-  const remaining=DAILY_LIMIT-getUsage().count;
-  const el=document.getElementById('usageCounter');
-  if(!el)return;
-  el.textContent=`오늘 남은 횟수: ${remaining}/${DAILY_LIMIT}`;
-  el.style.color=remaining<=2?'#d4703a':'#6a5e4e';
+  const el = document.getElementById('usageCounter');
+  if(!el || !currentCode)return;
+  const info = ACCESS_CODES[currentCode];
+  if(!info)return;
+  const used = getUsedCount(currentCode);
+  const remaining = info.limit - used;
+  el.innerHTML = `남은 횟수: <strong>${remaining < 0 ? 0 : remaining}/${info.limit}</strong>회 &nbsp;·&nbsp; 만료일: ${info.expire}`;
+  el.style.color = remaining <= 3 ? '#d4703a' : '#6a5e4e';
 }
 updateCounter();
 
@@ -687,13 +705,13 @@ async function generate(){
   if(!selLvs.length){alert('ESDM 레벨을 선택해 주세요.');return;}
   if(!selToys.length){alert('놀잇감을 선택해 주세요.');return;}
 
-  const usage=getUsage();
-  if(usage.count>=DAILY_LIMIT){
+  const info = ACCESS_CODES[currentCode];
+  if(!info || getUsedCount(currentCode) >= info.limit){
     document.getElementById('rBody').innerHTML=`
       <div class="err" style="text-align:center;padding:36px 24px;">
         <div style="font-size:2rem;margin-bottom:12px;">🚫</div>
-        <div style="font-size:1rem;font-weight:700;margin-bottom:8px;">오늘 사용 한도에 도달했습니다</div>
-        <div>하루 최대 ${DAILY_LIMIT}회까지 생성할 수 있습니다.<br>내일 자정 이후 다시 이용해 주세요.</div>
+        <div style="font-size:1rem;font-weight:700;margin-bottom:8px;">사용 횟수를 모두 소진했습니다</div>
+        <div>총 ${info?.limit||0}회 이용권을 모두 사용하셨습니다.<br>추가 이용을 원하시면 관리자에게 문의해 주세요.</div>
       </div>`;
     return;
   }
